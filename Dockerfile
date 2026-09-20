@@ -12,6 +12,7 @@ RUN useradd --uid 10001 --create-home --shell /usr/sbin/nologin par \
     && chown -R par:par /var/lib/aegi-par
 COPY AEGI_PAR_P3_APP_BUNDLE.zip /tmp/aegi.zip
 RUN python -m zipfile -e /tmp/aegi.zip /app \
+    && sed -i 's/opencv-python-headless==4.13.0$/opencv-python-headless==4.13.0.92/' /app/requirements-prod.txt \
     && pip install --no-cache-dir -r /app/requirements-prod.txt \
     && rm -f /tmp/aegi.zip \
     && chown -R par:par /app
