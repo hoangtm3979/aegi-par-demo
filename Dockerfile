@@ -14,7 +14,7 @@ COPY AEGI_PAR_P3_APP_BUNDLE.zip /tmp/aegi.zip
 COPY submission_overlay /tmp/submission_overlay
 RUN python -m zipfile -e /tmp/aegi.zip /app \
     && cp /tmp/submission_overlay/index.html /app/app/static/index.html \
-    && cp /tmp/submission_overlay/app.js /app/app/static/app.js \
+    && cat /tmp/submission_overlay/app_part1.js /tmp/submission_overlay/app_part2.js /tmp/submission_overlay/app_part3.js /tmp/submission_overlay/app_part4.js > /app/app/static/app.js \
     && cp /tmp/submission_overlay/styles.css /app/app/static/styles.css \
     && sed -i 's/opencv-python-headless==4.13.0$/opencv-python-headless==4.13.0.92/' /app/requirements-prod.txt \
     && pip install --no-cache-dir -r /app/requirements-prod.txt \
