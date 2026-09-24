@@ -1,0 +1,16 @@
+AEGI PAR Submission UI v1.1 — deploy payload
+
+Target repo: hoangtm3979/aegi-par-demo
+Target branch: main
+
+Replace/add exactly:
+- Dockerfile (replace existing)
+- submission_overlay/index.html
+- submission_overlay/app.js
+- submission_overlay/styles.css
+
+Do NOT replace AEGI_PAR_P3_APP_BUNDLE.zip.
+The Dockerfile extracts the existing rc4 bundle, then overlays only the three static frontend files.
+It also retains the existing OpenCV dependency remediation 4.13.0 -> 4.13.0.92.
+
+After commit, wait for Railway service aegi-par-demo-rc4 to deploy a new commit, then accept the exact public URL before recording.

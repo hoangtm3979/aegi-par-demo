@@ -11,10 +11,15 @@ RUN useradd --uid 10001 --create-home --shell /usr/sbin/nologin par \
     && mkdir -p /var/lib/aegi-par \
     && chown -R par:par /var/lib/aegi-par
 COPY AEGI_PAR_P3_APP_BUNDLE.zip /tmp/aegi.zip
+# Frontend overlay only; backend source remains from the frozen rc4 bundle.
+COPY submission_overlay /tmp/submission_overlay
 RUN python -m zipfile -e /tmp/aegi.zip /app \
+    && cp /tmp/submission_overlay/index.html /app/app/static/index.html \
+    && cp /tmp/submission_overlay/app.js /app/app/static/app.js \
+    && cp /tmp/submission_overlay/styles.css /app/app/static/styles.css \
     && sed -i 's/opencv-python-headless==4.13.0$/opencv-python-headless==4.13.0.92/' /app/requirements-prod.txt \
     && pip install --no-cache-dir -r /app/requirements-prod.txt \
-    && rm -f /tmp/aegi.zip \
+    && rm -rf /tmp/aegi.zip /tmp/submission_overlay \
     && chown -R par:par /app
 USER 10001
 EXPOSE 8000
