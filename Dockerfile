@@ -11,7 +11,6 @@ RUN useradd --uid 10001 --create-home --shell /usr/sbin/nologin par \
     && mkdir -p /var/lib/aegi-par \
     && chown -R par:par /var/lib/aegi-par
 COPY AEGI_PAR_P3_APP_BUNDLE.zip /tmp/aegi.zip
-# Frontend overlay only; backend source remains from the frozen rc4 bundle.
 COPY submission_overlay /tmp/submission_overlay
 RUN python -m zipfile -e /tmp/aegi.zip /app \
     && cp /tmp/submission_overlay/index.html /app/app/static/index.html \

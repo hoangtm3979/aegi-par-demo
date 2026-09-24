@@ -1,0 +1,48 @@
+{
+  "ui_release": "1.1",
+  "engine": "v0.4.2-rc4",
+  "backend_zip_sha256": "28ef2504f91ffac2dce6a1e613e56802fe61d011b3b840b0963e8bb675b5d0c0",
+  "backend_nonstatic_differences": [],
+  "acceptance": {
+    "base": "http://127.0.0.1:8765",
+    "results": [
+      {
+        "sample": 1,
+        "action": "PREVENT_VERIFY"
+      },
+      {
+        "sample": 2,
+        "action": "VERIFY_LIGHT"
+      },
+      {
+        "sample": 3,
+        "action": "RECOVER"
+      },
+      {
+        "reset": "PASS"
+      },
+      {
+        "delete503": "PASS"
+      },
+      {
+        "deleteReal": "PASS"
+      },
+      {
+        "mobile": {
+          "overflow": false,
+          "cta": 479
+        }
+      }
+    ],
+    "pageErrors": []
+  },
+  "scope": "UI acceptance, not effectiveness benchmark",
+  "deployment_dependency_note": "Existing Dockerfile OpenCV version normalization retained unchanged.",
+  "additional_acceptance": {
+    "otp_only_exposure": "payment=NO, credential=YES, control=NO",
+    "real_image_upload": "PASS",
+    "upload_cross_case_race_mock": "PASS"
+  },
+  "production_status": "NOT_DEPLOYED_GITHUB_WRITE_403",
+  "base_commit": "211a7a3d5da897ff43d2867d8e4087ba8de1c2c1"
+}
