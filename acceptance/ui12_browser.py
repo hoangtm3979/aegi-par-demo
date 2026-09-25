@@ -7,7 +7,7 @@ from selenium.webdriver.chrome.options import Options
 
 base=os.environ['BASE_URL'].rstrip('/')
 os.makedirs('/tmp/aegi-ui12',exist_ok=True)
-png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9WlZ9xkAAAAASUVORK5CYII=')
+png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAYUlEQVR4nO3PQQ0AIBDAMMC/2JOACB4Nyapg2zOzfnZ0wKsGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAa0BrQGtAv3PQNQLlLzTgAAAABJRU5ErkJggg==')
 open('/tmp/aegi-ui12/pixel.png','wb').write(png)
 o=Options();o.add_argument('--headless=new');o.add_argument('--no-sandbox');o.add_argument('--disable-dev-shm-usage');o.add_argument('--window-size=390,844')
 d=webdriver.Chrome(options=o);w=WebDriverWait(d,20)
