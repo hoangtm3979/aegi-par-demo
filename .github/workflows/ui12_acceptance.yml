@@ -5,6 +5,8 @@ on:
       - '.github/workflows/ui12_acceptance.yml'
       - 'acceptance/ui12_api.py'
       - 'acceptance/ui12_browser.py'
+      - 'submission_overlay/**'
+      - 'Dockerfile'
   workflow_dispatch:
 jobs:
   acceptance:
