@@ -6,33 +6,13 @@
   "acceptance": {
     "base": "http://127.0.0.1:8765",
     "results": [
-      {
-        "sample": 1,
-        "action": "PREVENT_VERIFY"
-      },
-      {
-        "sample": 2,
-        "action": "VERIFY_LIGHT"
-      },
-      {
-        "sample": 3,
-        "action": "RECOVER"
-      },
-      {
-        "reset": "PASS"
-      },
-      {
-        "delete503": "PASS"
-      },
-      {
-        "deleteReal": "PASS"
-      },
-      {
-        "mobile": {
-          "overflow": false,
-          "cta": 479
-        }
-      }
+      {"sample": 1, "action": "PREVENT_VERIFY"},
+      {"sample": 2, "action": "VERIFY_LIGHT"},
+      {"sample": 3, "action": "RECOVER"},
+      {"reset": "PASS"},
+      {"delete503": "PASS"},
+      {"deleteReal": "PASS"},
+      {"mobile": {"overflow": false, "cta": 479}}
     ],
     "pageErrors": []
   },
@@ -43,6 +23,31 @@
     "real_image_upload": "PASS",
     "upload_cross_case_race_mock": "PASS"
   },
-  "production_status": "NOT_DEPLOYED_GITHUB_WRITE_403",
+  "production_acceptance": {
+    "status": "PRODUCTION_ACCEPTED",
+    "accepted_at_utc": "2026-09-25T00:06:44Z",
+    "public_url": "https://aegi-par-demo-rc4-production.up.railway.app",
+    "railway_service": "aegi-par-demo-rc4",
+    "railway_deployment_id": "dc3f8d1e-ded6-482e-a478-251b8bc96d8b",
+    "deployed_commit": "6136c4b19db235c47d4a7cbe588f1e4b714e0364",
+    "external_smoke_workflow_run_id": 36075997191,
+    "external_smoke_job_id": 107887201659,
+    "http": {
+      "/api/v1/readyz": 200,
+      "/api/v1/health": 200,
+      "/": 200,
+      "/static/app.js": 200,
+      "/static/styles.css": 200,
+      "/api/v1/demo/profiles": 200
+    },
+    "production_flows": {
+      "flow1": "PREVENT_VERIFY",
+      "flow2": "VERIFY_LIGHT",
+      "flow3": "RECOVER"
+    },
+    "evidence_endpoint": "PASS_3_OF_3",
+    "temporary_case_cleanup": "PASS_3_OF_3_DELETE_THEN_404"
+  },
+  "production_status": "PRODUCTION_ACCEPTED",
   "base_commit": "211a7a3d5da897ff43d2867d8e4087ba8de1c2c1"
 }
