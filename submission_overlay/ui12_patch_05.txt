@@ -1,0 +1,2 @@
+g loại bằng chứng; khớp tham chiếu không phải chứng nhận an toàn.</p>');}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',ui12Init);else ui12Init();
