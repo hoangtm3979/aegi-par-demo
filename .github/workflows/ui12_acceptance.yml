@@ -1,0 +1,27 @@
+name: UI 1.2 production acceptance
+on:
+  push:
+    paths:
+      - '.github/workflows/ui12_acceptance.yml'
+      - 'acceptance/ui12_api.py'
+      - 'acceptance/ui12_browser.py'
+  workflow_dispatch:
+jobs:
+  acceptance:
+    runs-on: ubuntu-24.04
+    env:
+      BASE_URL: https://aegi-par-demo-rc4-production.up.railway.app
+    steps:
+      - uses: actions/checkout@v4
+      - name: API and runtime acceptance
+        run: python3 acceptance/ui12_api.py
+      - name: Install browser dependency
+        run: python3 -m pip install --quiet selenium
+      - name: Browser acceptance and screenshots
+        run: python3 acceptance/ui12_browser.py
+      - name: Upload accepted UI screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui12-accepted-screenshots
+          path: /tmp/aegi-ui12/*.png
+          retention-days: 30
