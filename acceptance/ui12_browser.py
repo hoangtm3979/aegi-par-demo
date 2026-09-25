@@ -30,10 +30,14 @@ try:
     up=d.find_element(By.ID,'uploadStatus').text.lower(); assert 'chưa đọc' in up or 'qr' in up
     d.find_element(By.CSS_SELECTOR,'#checkForm button[type="submit"]').click()
     w.until(EC.visibility_of_element_located((By.CSS_SELECTOR,'#result.active')))
-    assert 'Làm gì ngay' in d.find_element(By.CSS_SELECTOR,'.action-priority').text
-    assert 'Xác minh / xử lý tiếp theo' in d.find_element(By.CSS_SELECTOR,'.verification-primary').text
-    case_id=d.execute_script("return localStorage.getItem('aegi_par_p3_last_case')"); assert case_id
     d.set_window_size(1280,1000); d.save_screenshot('/tmp/aegi-ui12/02_flow1_result.png')
+    action_text=d.find_element(By.CSS_SELECTOR,'.action-priority').text
+    verify_text=d.find_element(By.CSS_SELECTOR,'.verification-primary').text
+    print('ACTION_PRIORITY_TEXT=',repr(action_text)); print('VERIFY_PRIMARY_TEXT=',repr(verify_text))
+    print('ACTION_OUTER_HTML=',d.find_element(By.CSS_SELECTOR,'.action-priority').get_attribute('outerHTML')[:1200])
+    assert 'Làm gì ngay' in action_text
+    assert 'Xác minh / xử lý tiếp theo' in verify_text
+    case_id=d.execute_script("return localStorage.getItem('aegi_par_p3_last_case')"); assert case_id
 
     d.find_element(By.ID,'showEvidence').click(); w.until(lambda x:x.find_element(By.ID,'evidenceDialog').get_attribute('open') is not None)
     adverse=[x.text for x in d.find_elements(By.CSS_SELECTOR,'.state-adverse')]; assert 'Khớp cảnh báo' in adverse,adverse
