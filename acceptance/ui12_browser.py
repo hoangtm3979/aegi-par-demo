@@ -11,6 +11,16 @@ png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAYUlEQVR4nO
 open('/tmp/aegi-ui12/pixel.png','wb').write(png)
 o=Options();o.add_argument('--headless=new');o.add_argument('--no-sandbox');o.add_argument('--disable-dev-shm-usage');o.add_argument('--window-size=390,844')
 d=webdriver.Chrome(options=o);w=WebDriverWait(d,20)
+
+def click_visible_back():
+    b=d.find_element(By.CSS_SELECTOR,'#intake [data-back]')
+    d.execute_script('window.scrollTo(0,0)'); time.sleep(.1)
+    geom=d.execute_script("const b=arguments[0].getBoundingClientRect(),h=document.querySelector('.topbar').getBoundingClientRect();return {top:b.top,bottom:b.bottom,headerBottom:h.bottom,viewportH:window.innerHeight};",b)
+    print('BACK_GEOMETRY=',geom)
+    assert geom['top'] >= geom['headerBottom'] - 1, geom
+    assert geom['bottom'] <= geom['viewportH'] + 1, geom
+    d.execute_script('arguments[0].click()',b)
+
 try:
     d.set_window_size(390,844); d.get(base+'/')
     w.until(lambda x:'UI 1.2' in x.find_element(By.CSS_SELECTOR,'.brand small').text)
@@ -34,7 +44,6 @@ try:
     action_text=d.find_element(By.CSS_SELECTOR,'.action-priority').text
     verify_text=d.find_element(By.CSS_SELECTOR,'.verification-primary').text
     print('ACTION_PRIORITY_TEXT=',repr(action_text)); print('VERIFY_PRIMARY_TEXT=',repr(verify_text))
-    print('ACTION_OUTER_HTML=',d.find_element(By.CSS_SELECTOR,'.action-priority').get_attribute('outerHTML')[:1200])
     assert 'LÀM GÌ NGAY' in action_text.upper()
     assert 'XÁC MINH / XỬ LÝ TIẾP THEO' in verify_text.upper()
     case_id=d.execute_script("return localStorage.getItem('aegi_par_p3_last_case')"); assert case_id
@@ -53,7 +62,7 @@ try:
 
     w.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,'.load-profile')))[0].click(); w.until(EC.visibility_of_element_located((By.ID,'checkForm')))
     assert d.find_element(By.ID,'situation').get_attribute('value')
-    d.find_element(By.CSS_SELECTOR,'#intake [data-back]').click(); w.until(EC.visibility_of_element_located((By.CSS_SELECTOR,'#home.active')))
+    click_visible_back(); w.until(EC.visibility_of_element_located((By.CSS_SELECTOR,'#home.active')))
     d.find_element(By.CSS_SELECTOR,'[data-entry="recovery"]').click(); w.until(EC.visibility_of_element_located((By.CSS_SELECTOR,'#intake.active')))
     assert d.find_element(By.ID,'situation').get_attribute('value')==''
     assert d.find_element(By.ID,'phone').get_attribute('value')=='' and d.find_element(By.ID,'account').get_attribute('value')==''
@@ -65,7 +74,7 @@ try:
     d.find_element(By.ID,'situation').send_keys('Một yêu cầu đáng ngờ cần kiểm tra')
     d.execute_script("window.__ui12OrigFetch2=window.fetch; window.fetch=(u,o={})=>{if(String(u).includes('/api/v1/check'))return new Promise((resolve,reject)=>{const t=setTimeout(()=>window.__ui12OrigFetch2(u,o).then(resolve,reject),1500);if(o.signal)o.signal.addEventListener('abort',()=>{clearTimeout(t);reject(new DOMException('Aborted','AbortError'))})});return window.__ui12OrigFetch2(u,o)}")
     d.find_element(By.CSS_SELECTOR,'#checkForm button[type="submit"]').click(); time.sleep(.15)
-    d.find_element(By.CSS_SELECTOR,'#intake [data-back]').click(); w.until(EC.visibility_of_element_located((By.CSS_SELECTOR,'#home.active')))
+    click_visible_back(); w.until(EC.visibility_of_element_located((By.CSS_SELECTOR,'#home.active')))
     d.find_element(By.CSS_SELECTOR,'[data-entry="situation"]').click(); w.until(EC.visibility_of_element_located((By.CSS_SELECTOR,'#intake.active')))
     time.sleep(2.0)
     assert 'active' in d.find_element(By.ID,'intake').get_attribute('class')
