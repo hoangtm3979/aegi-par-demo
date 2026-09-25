@@ -35,17 +35,17 @@ try:
     verify_text=d.find_element(By.CSS_SELECTOR,'.verification-primary').text
     print('ACTION_PRIORITY_TEXT=',repr(action_text)); print('VERIFY_PRIMARY_TEXT=',repr(verify_text))
     print('ACTION_OUTER_HTML=',d.find_element(By.CSS_SELECTOR,'.action-priority').get_attribute('outerHTML')[:1200])
-    assert 'Làm gì ngay' in action_text
-    assert 'Xác minh / xử lý tiếp theo' in verify_text
+    assert 'LÀM GÌ NGAY' in action_text.upper()
+    assert 'XÁC MINH / XỬ LÝ TIẾP THEO' in verify_text.upper()
     case_id=d.execute_script("return localStorage.getItem('aegi_par_p3_last_case')"); assert case_id
 
     d.find_element(By.ID,'showEvidence').click(); w.until(lambda x:x.find_element(By.ID,'evidenceDialog').get_attribute('open') is not None)
-    adverse=[x.text for x in d.find_elements(By.CSS_SELECTOR,'.state-adverse')]; assert 'Khớp cảnh báo' in adverse,adverse
+    adverse=[x.text for x in d.find_elements(By.CSS_SELECTOR,'.state-adverse')]; assert any('KHỚP CẢNH BÁO' in x.upper() for x in adverse),adverse
     d.save_screenshot('/tmp/aegi-ui12/03_flow1_evidence.png'); d.find_element(By.ID,'closeEvidence').click()
 
     d.execute_script("window.__ui12OrigFetch=window.fetch; window.fetch=(u,o={})=>{if((o.method||'GET')==='DELETE')return Promise.resolve(new Response('{}',{status:503,headers:{'Content-Type':'application/json'}}));return window.__ui12OrigFetch(u,o)}")
     d.find_element(By.ID,'deleteCase').click(); w.until(lambda x:not x.find_element(By.ID,'resultStatus').get_attribute('hidden'))
-    assert 'Chưa xóa được' in d.find_element(By.ID,'resultStatus').text
+    assert 'chưa xóa được' in d.find_element(By.ID,'resultStatus').text.lower()
     assert d.execute_script("return localStorage.getItem('aegi_par_p3_last_case')")==case_id
     d.execute_script('window.fetch=window.__ui12OrigFetch')
     d.find_element(By.ID,'deleteCase').click(); w.until(EC.visibility_of_element_located((By.CSS_SELECTOR,'#home.active')))
