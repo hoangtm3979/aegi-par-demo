@@ -1,0 +1,120 @@
+name: PAR production smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/production-smoke.yml'
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Test production rc4 UI 1.1
+        env:
+          BASE_URL: https://aegi-par-demo-rc4-production.up.railway.app
+        run: |
+          python3 - <<'PY'
+          import json, os, sys, urllib.request, urllib.error
+
+          base = os.environ['BASE_URL'].rstrip('/')
+          created = []
+
+          def request(path, method='GET', payload=None, expected=(200,)):
+              url = base + path
+              data = None
+              headers = {'User-Agent': 'AEGI-PAR-production-smoke/1.0'}
+              if payload is not None:
+                  data = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+                  headers['Content-Type'] = 'application/json'
+              req = urllib.request.Request(url, data=data, headers=headers, method=method)
+              try:
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      body = r.read()
+                      status = r.status
+                      ctype = r.headers.get('content-type','')
+              except urllib.error.HTTPError as e:
+                  status = e.code
+                  body = e.read()
+                  ctype = e.headers.get('content-type','') if e.headers else ''
+              print(f'{method} {path} -> {status}')
+              if status not in expected:
+                  print(body[:1000].decode('utf-8','replace'))
+                  raise AssertionError(f'{method} {path}: expected {expected}, got {status}')
+              return status, body, ctype
+
+          try:
+              _, body, _ = request('/api/v1/readyz')
+              ready = json.loads(body)
+              assert ready.get('ready') is True, ready
+              assert ready.get('release') == 'PAR-DEMO-P3-v0.4.2-rc4', ready
+
+              _, body, _ = request('/api/v1/health')
+              health = json.loads(body)
+              assert health.get('status') == 'ok', health
+              assert health.get('release') == 'PAR-DEMO-P3-v0.4.2-rc4', health
+
+              _, body, _ = request('/')
+              home = body.decode('utf-8')
+              assert 'Demo rc4 / UI 1.1' in home
+              assert 'Kiểm tra trước khi chuyển tiền' in home
+
+              _, js, _ = request('/static/app.js')
+              assert b'uploadEpoch' in js and b'deleteCurrentCase' in js
+              _, css, _ = request('/static/styles.css')
+              assert b'.benchmark-section' in css and b'focus-visible' in css
+
+              _, body, _ = request('/api/v1/demo/profiles')
+              profiles_doc = json.loads(body)
+              profiles = {p['id']: p for p in profiles_doc.get('profiles', [])}
+              required = {'hero1_unknown_identifier','hero2_legitimate_unfamiliar'}
+              assert required.issubset(profiles), sorted(profiles)
+              print('PROFILE_IDS=' + ','.join(sorted(profiles)))
+
+              flow1 = profiles['hero1_unknown_identifier']
+              flow2 = profiles['hero2_legitimate_unfamiliar']
+              flow3 = {
+                  'situation': 'Tôi đã chuyển 25 triệu đồng theo yêu cầu của người gọi tự xưng cán bộ điều tra và họ yêu cầu tôi giữ bí mật. Sau đó tôi phát hiện tài khoản nhận không đúng thông tin mà họ nói. Tôi cần biết phải làm gì ngay.',
+                  'phone': '0900000404',
+                  'account': '666600001111222233',
+                  'action_state': 'ALREADY_TRANSFERRED'
+              }
+
+              cases = [
+                  ('FLOW1', flow1, 'PREVENT_VERIFY'),
+                  ('FLOW2', flow2, 'VERIFY_LIGHT'),
+                  ('FLOW3', flow3, 'RECOVER'),
+              ]
+              for label, src, expected_action in cases:
+                  payload = {
+                      'situation': src['situation'],
+                      'phone': src.get('phone'),
+                      'account': src.get('account'),
+                      'action_state': src.get('action_state','UNKNOWN'),
+                      'attachment_tokens': [],
+                      'exposure_answers': {'payment':'UNKNOWN','credential':'UNKNOWN','control':'UNKNOWN'}
+                  }
+                  _, body, _ = request('/api/v1/check', 'POST', payload)
+                  out = json.loads(body)
+                  cid = out['case_id']; created.append(cid)
+                  action = out.get('action_class')
+                  print(f'{label}_ACTION={action}')
+                  assert action == expected_action, (label, expected_action, action, out.get('headline'))
+                  for key in ('actions','reasons','unknowns','verification_steps','trace'):
+                      assert out.get(key), (label, key)
+                  _, ev_body, _ = request(f'/api/v1/cases/{cid}/evidence')
+                  ev = json.loads(ev_body)
+                  assert ev.get('case_id') == cid
+
+              print('PRODUCTION_SMOKE=PASS')
+          finally:
+              for cid in created:
+                  try:
+                      request(f'/api/v1/cases/{cid}', 'DELETE', expected=(200,))
+                      request(f'/api/v1/cases/{cid}', expected=(404,))
+                      print(f'DELETE_CONFIRMED={cid}')
+                  except Exception as exc:
+                      print(f'CLEANUP_WARNING {cid}: {exc}')
+          PY
