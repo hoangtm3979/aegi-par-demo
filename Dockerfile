@@ -16,6 +16,10 @@ RUN python -m zipfile -e /tmp/aegi.zip /app \
     && cp /tmp/submission_overlay/index.html /app/app/static/index.html \
     && cat /tmp/submission_overlay/app_part1.js /tmp/submission_overlay/app_part2.js /tmp/submission_overlay/app_part3.js /tmp/submission_overlay/app_part4.js > /app/app/static/app.js \
     && cp /tmp/submission_overlay/styles.css /app/app/static/styles.css \
+    && cat /tmp/submission_overlay/ui12_patch_00.txt /tmp/submission_overlay/ui12_patch_01.txt /tmp/submission_overlay/ui12_patch_02.txt /tmp/submission_overlay/ui12_patch_03.txt /tmp/submission_overlay/ui12_patch_04.txt /tmp/submission_overlay/ui12_patch_05.txt > /app/app/static/ui12_patch.js \
+    && cp /tmp/submission_overlay/ui12.css /app/app/static/ui12.css \
+    && sed -i 's#</head>#  <link rel="stylesheet" href="/static/ui12.css" />\n</head>#' /app/app/static/index.html \
+    && sed -i 's#<script src="/static/app.js"></script>#<script src="/static/app.js"></script>\n  <script src="/static/ui12_patch.js"></script>#' /app/app/static/index.html \
     && sed -i 's/opencv-python-headless==4.13.0$/opencv-python-headless==4.13.0.92/' /app/requirements-prod.txt \
     && pip install --no-cache-dir -r /app/requirements-prod.txt \
     && rm -rf /tmp/aegi.zip /tmp/submission_overlay \
